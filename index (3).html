@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MessMate</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif;}
+:root{
+  --primary:#6366f1;--primary-dark:#4f46e5;--primary-light:#eef2ff;
+  --green:#10b981;--green-light:#d1fae5;
+  --orange:#f97316;--orange-light:#fff7ed;
+  --red:#ef4444;--red-light:#fee2e2;
+  --yellow:#f59e0b;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-700:#374151;--gray-800:#1f2937;--gray-900:#111827;
+  --white:#ffffff;--shadow:0 4px 24px rgba(0,0,0,0.08);--shadow-lg:0 12px 40px rgba(0,0,0,0.14);
+  --radius:16px;--radius-sm:10px;
+}
+body{background:#f0f4ff;min-height:100vh;}
+/* ── NAV ── */
+nav{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(99,102,241,.07);}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;}
+.logo-text{font-size:1.25rem;font-weight:800;color:var(--gray-900);}
+.logo-text span{color:var(--primary);}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.nav-btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s;}
+.nav-btn-ghost{background:transparent;color:var(--gray-700);}
+.nav-btn-ghost:hover{background:var(--gray-100);color:var(--primary);}
+.nav-btn-primary{background:var(--primary);color:#fff;}
+.nav-btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 14px rgba(99,102,241,.4);}
+/* ── PAGES ── */
+.page{display:none;}
+.page.active{display:block;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#6366f1 0%,#818cf8 40%,#a78bfa 100%);padding:64px 24px 80px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:.78rem;font-weight:600;padding:6px 14px;border-radius:99px;margin-bottom:20px;backdrop-filter:blur(8px);}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;line-height:1.1;margin-bottom:16px;}
+.hero h1 span{color:#fde68a;}
+.hero p{color:rgba(255,255,255,.85);font-size:1rem;max-width:480px;margin:0 auto 32px;line-height:1.6;}
+.search-wrap{display:flex;background:#fff;border-radius:99px;padding:6px;max-width:500px;margin:0 auto 40px;box-shadow:0 8px 32px rgba(0,0,0,.15);}
+.search-wrap input{flex:1;border:none;outline:none;padding:10px 16px;font-size:.95rem;color:var(--gray-800);background:transparent;min-width:0;}
+.search-wrap button{background:var(--primary);color:#fff;border:none;border-radius:99px;padding:10px 24px;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.search-wrap button:hover{background:var(--primary-dark);}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;}
+.hero-stat .n{font-size:2rem;font-weight:900;color:#fff;}
+.hero-stat .l{font-size:.75rem;color:rgba(255,255,255,.7);margin-top:2px;}
+/* ── FILTER CHIPS ── */
+.filter-bar{background:#fff;padding:16px 24px;border-bottom:1px solid var(--gray-200);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.filter-bar::-webkit-scrollbar{display:none;}
+.chip{padding:8px 18px;border-radius:99px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--gray-500);white-space:nowrap;transition:all .2s;}
+.chip:hover{border-color:var(--primary);color:var(--primary);}
+.chip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+/* ── SECTION ── */
+.section{max-width:1100px;margin:0 auto;padding:32px 24px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.section-title{font-size:1.2rem;font-weight:800;color:var(--gray-800);}
+.section-sub{font-size:.83rem;color:var(--gray-400);margin-top:2px;}
+/* ── MESS GRID ── */
+.mess-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+.mess-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:all .25s;border:1px solid var(--gray-100);}
+.mess-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);}
+.mess-thumb{height:165px;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative;}
+.mess-thumb.g1{background:linear-gradient(135deg,#fde68a,#fbbf24);}
+.mess-thumb.g2{background:linear-gradient(135deg,#a7f3d0,#34d399);}
+.mess-thumb.g3{background:linear-gradient(135deg,#fecaca,#f87171);}
+.mess-thumb.g4{background:linear-gradient(135deg,#bfdbfe,#60a5fa);}
+.mess-thumb.g5{background:linear-gradient(135deg,#e9d5ff,#a78bfa);}
+.mess-thumb.g6{background:linear-gradient(135deg,#fed7aa,#fb923c);}
+.thumb-badge{position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:99px;font-size:.72rem;font-weight:700;}
+.thumb-badge.delivery{background:var(--green);color:#fff;}
+.thumb-badge.veg{position:absolute;top:10px;left:10px;background:#fff;color:var(--green);border:1.5px solid var(--green);}
+.mess-body{padding:16px;}
+.mess-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.mess-name{font-weight:800;font-size:1rem;color:var(--gray-800);}
+.rating-badge{display:flex;align-items:center;gap:4px;background:var(--green);color:#fff;font-size:.78rem;font-weight:700;padding:4px 9px;border-radius:8px;flex-shrink:0;}
+.mess-area{font-size:.8rem;color:var(--gray-400);margin-bottom:10px;}
+.mess-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.mess-tag{font-size:.72rem;padding:3px 10px;border-radius:99px;background:var(--primary-light);color:var(--primary);font-weight:500;}
+.mess-footer{display:flex;align-items:center;justify-content:space-between;}
+.mess-price{font-size:.9rem;font-weight:800;color:var(--gray-800);}
+.mess-price span{color:var(--gray-400);font-weight:400;font-size:.78rem;}
+.btn-view{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-view:hover{background:var(--primary-dark);}
+/* ── DETAIL ── */
+.detail-hero{height:220px;display:flex;align-items:center;justify-content:center;font-size:6rem;position:relative;}
+.detail-hero.g1{background:linear-gradient(135deg,#fde68a,#fbbf24);}
+.detail-hero.g2{background:linear-gradient(135deg,#a7f3d0,#34d399);}
+.detail-hero.g3{background:linear-gradient(135deg,#fecaca,#f87171);}
+.detail-hero.g4{background:linear-gradient(135deg,#bfdbfe,#60a5fa);}
+.detail-hero.g5{background:linear-gradient(135deg,#e9d5ff,#a78bfa);}
+.detail-hero.g6{background:linear-gradient(135deg,#fed7aa,#fb923c);}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--primary);font-weight:700;font-size:.88rem;cursor:pointer;padding:16px 24px;border-bottom:1px solid var(--gray-200);}
+.detail-info{padding:20px 24px;border-bottom:1px solid var(--gray-200);}
+.detail-name{font-size:1.6rem;font-weight:900;color:var(--gray-900);}
+.detail-meta{color:var(--gray-400);font-size:.88rem;margin:6px 0 14px;line-height:1.5;}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.badge{padding:5px 14px;border-radius:99px;font-size:.78rem;font-weight:700;}
+.badge-green{background:var(--green-light);color:var(--green);}
+.badge-purple{background:var(--primary-light);color:var(--primary);}
+.badge-orange{background:var(--orange-light);color:var(--orange);}
+.badge-red{background:var(--red-light);color:var(--red);}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-delivery{background:var(--green);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;}
+.btn-delivery:hover{background:#059669;transform:translateY(-1px);}
+.btn-review-write{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;}
+.btn-review-write:hover{background:var(--primary-dark);}
+.btn-save{background:#fff;color:var(--gray-500);border:1.5px solid var(--gray-200);border-radius:10px;padding:10px 20px;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;}
+.btn-save:hover{border-color:var(--red);color:var(--red);}
+/* TABS */
+.tab-bar{display:flex;border-bottom:2px solid var(--gray-200);background:#fff;padding:0 24px;gap:4px;}
+.tab-btn{padding:14px 20px;border:none;background:transparent;font-size:.88rem;font-weight:700;color:var(--gray-400);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+.tab-content{display:none;padding:20px 24px;}
+.tab-content.active{display:block;animation:fadeIn .25s ease;}
+/* MENU */
+.menu-cat{margin-bottom:24px;}
+.cat-label{font-size:.85rem;font-weight:800;color:var(--gray-500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.cat-label::after{content:'';flex:1;height:1px;background:var(--gray-200);}
+.menu-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:var(--radius-sm);background:var(--gray-50);margin-bottom:8px;transition:background .2s;}
+.menu-item:hover{background:var(--primary-light);}
+.mi-left{display:flex;align-items:center;gap:10px;}
+.veg-sq{width:14px;height:14px;border-radius:3px;border:2px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.veg-sq.veg{border-color:var(--green);}
+.veg-sq.veg::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);}
+.veg-sq.nonveg{border-color:var(--red);}
+.veg-sq.nonveg::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--red);}
+.mi-name{font-weight:700;font-size:.9rem;color:var(--gray-800);}
+.mi-stars{font-size:.75rem;color:var(--yellow);margin-top:1px;}
+.mi-price{font-weight:800;font-size:.9rem;color:var(--gray-700);}
+/* REVIEWS */
+.review-card{background:var(--gray-50);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;border-left:3px solid var(--primary);}
+.reviewer{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff;flex-shrink:0;}
+.rv-name{font-weight:700;font-size:.88rem;color:var(--gray-800);}
+.rv-date{font-size:.74rem;color:var(--gray-400);}
+.rv-stars{color:var(--yellow);font-size:.85rem;}
+.rv-text{font-size:.85rem;color:var(--gray-700);line-height:1.6;}
+.rv-item{display:inline-block;margin-top:8px;background:var(--primary-light);color:var(--primary);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px;}
+/* INFO */
+.info-card{background:var(--gray-50);border-radius:var(--radius-sm);padding:20px;}
+.info-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-200);font-size:.88rem;}
+.info-row:last-child{border:none;}
+.info-label{color:var(--gray-400);width:100px;flex-shrink:0;}
+.info-val{font-weight:700;color:var(--gray-800);}
+/* ── DASHBOARD ── */
+.dash-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));padding:32px 24px;color:#fff;}
+.dash-header h1{font-size:1.6rem;font-weight:900;margin-bottom:4px;}
+.dash-header p{font-size:.88rem;opacity:.8;}
+.dash-pro{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:4px 12px;font-size:.75rem;font-weight:700;margin-top:10px;}
+.dash-body{max-width:1000px;margin:0 auto;padding:32px 24px;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border:1px solid var(--gray-100);}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px;}
+.stat-label{font-size:.78rem;color:var(--gray-400);font-weight:600;margin-bottom:4px;}
+.stat-val{font-size:2rem;font-weight:900;color:var(--gray-900);}
+.stat-change{font-size:.75rem;font-weight:600;margin-top:4px;}
+.up{color:var(--green);}
+.highlight-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
+@media(max-width:600px){.highlight-grid{grid-template-columns:1fr;}}
+.hl-card{border-radius:var(--radius);padding:24px;color:#fff;}
+.hl-card.best{background:linear-gradient(135deg,#10b981,#059669);}
+.hl-card.worst{background:linear-gradient(135deg,#ef4444,#dc2626);}
+.hl-tag{font-size:.72rem;font-weight:700;opacity:.8;margin-bottom:8px;}
+.hl-name{font-size:1.4rem;font-weight:900;margin-bottom:12px;}
+.hl-rating{display:flex;align-items:center;gap:8px;}
+.hl-stars{font-size:1.1rem;}
+.hl-num{background:rgba(255,255,255,.25);padding:3px 10px;border-radius:99px;font-size:.82rem;font-weight:700;}
+.hl-sub{font-size:.78rem;opacity:.7;margin-top:6px;}
+.chart-card{background:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:24px;border:1px solid var(--gray-100);}
+.chart-title{font-weight:800;color:var(--gray-800);margin-bottom:20px;font-size:1rem;}
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.bar-name{font-size:.82rem;font-weight:600;color:var(--gray-700);width:160px;flex-shrink:0;}
+.bar-track{flex:1;height:10px;background:var(--gray-100);border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.23,1,.32,1);}
+.bar-val{font-size:.82rem;font-weight:800;color:var(--gray-700);width:28px;text-align:right;}
+/* ── LOGIN ── */
+.login-wrap{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:32px 16px;}
+.login-box{background:#fff;border-radius:24px;box-shadow:var(--shadow-lg);padding:40px;width:100%;max-width:440px;}
+.login-role-wrap{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;padding:32px 16px;background:var(--gray-50);}
+.role-box{background:#fff;border-radius:24px;box-shadow:var(--shadow-lg);padding:36px;width:100%;max-width:420px;}
+.role-title{font-size:1.5rem;font-weight:900;color:var(--gray-900);margin-bottom:6px;}
+.role-sub{font-size:.88rem;color:var(--gray-400);margin-bottom:28px;}
+.role-card{display:flex;align-items:center;gap:16px;padding:18px;border-radius:14px;border:2px solid var(--gray-200);cursor:pointer;transition:all .2s;margin-bottom:12px;}
+.role-card:hover{border-color:var(--primary);background:var(--primary-light);transform:translateX(4px);}
+.role-card.green:hover{border-color:var(--green);background:var(--green-light);}
+.role-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
+.role-icon.purple{background:var(--primary-light);}
+.role-icon.green{background:var(--green-light);}
+.role-name{font-weight:800;color:var(--gray-800);}
+.role-desc{font-size:.78rem;color:var(--gray-400);margin-top:2px;}
+.role-arrow{margin-left:auto;color:var(--gray-300);font-size:1.2rem;}
+.login-header{margin-bottom:28px;}
+.login-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:14px;}
+.login-icon.purple{background:linear-gradient(135deg,var(--primary),var(--primary-dark));}
+.login-icon.green{background:linear-gradient(135deg,var(--green),#059669);}
+.login-title{font-size:1.4rem;font-weight:900;color:var(--gray-900);}
+.login-sub{font-size:.83rem;color:var(--gray-400);margin-top:4px;}
+.form-group{margin-bottom:18px;}
+.form-label{display:block;font-size:.83rem;font-weight:700;color:var(--gray-700);margin-bottom:6px;}
+.form-input{width:100%;padding:12px 16px;border:2px solid var(--gray-200);border-radius:10px;font-size:.9rem;color:var(--gray-800);outline:none;transition:border .2s;}
+.form-input:focus{border-color:var(--primary);}
+.form-input.green:focus{border-color:var(--green);}
+.form-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.form-check{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--gray-500);cursor:pointer;}
+.form-link{font-size:.8rem;font-weight:700;text-decoration:none;}
+.form-link.purple{color:var(--primary);}
+.form-link.green{color:var(--green);}
+.btn-login{width:100%;padding:13px;border:none;border-radius:10px;font-weight:800;font-size:.95rem;cursor:pointer;transition:all .2s;}
+.btn-login.purple{background:var(--primary);color:#fff;}
+.btn-login.purple:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.4);}
+.btn-login.green{background:var(--green);color:#fff;}
+.btn-login.green:hover{background:#059669;transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,.4);}
+.or-divider{display:flex;align-items:center;gap:12px;color:var(--gray-400);font-size:.78rem;margin:20px 0;}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--gray-200);}
+.btn-google{width:100%;padding:12px;border:2px solid var(--gray-200);border-radius:10px;background:#fff;font-weight:700;font-size:.88rem;color:var(--gray-700);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
+.btn-google:hover{border-color:var(--gray-400);background:var(--gray-50);}
+.login-footer{text-align:center;margin-top:20px;font-size:.82rem;color:var(--gray-400);}
+/* ── REVIEW PAGE ── */
+.review-wrap{max-width:580px;margin:0 auto;padding:32px 24px;}
+.review-title{font-size:1.4rem;font-weight:900;color:var(--gray-900);margin-bottom:4px;}
+.review-sub{font-size:.85rem;color:var(--gray-400);margin-bottom:24px;}
+.ri-card{background:#fff;border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;border:1.5px solid var(--gray-200);transition:border .2s;}
+.ri-card:hover{border-color:var(--primary);}
+.ri-name{font-weight:700;font-size:.9rem;color:var(--gray-800);margin-bottom:8px;}
+.star-row{display:flex;gap:6px;}
+.star-btn{font-size:1.6rem;background:none;border:none;cursor:pointer;color:var(--gray-200);transition:color .15s,transform .1s;}
+.star-btn:hover{transform:scale(1.2);}
+.star-btn.lit{color:var(--yellow);}
+.comment-box{background:#fff;border-radius:var(--radius-sm);padding:16px;margin-bottom:20px;border:1.5px solid var(--gray-200);}
+.comment-box textarea{width:100%;border:none;outline:none;font-size:.9rem;color:var(--gray-700);resize:none;line-height:1.6;}
+.btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;border-radius:var(--radius-sm);font-weight:800;font-size:1rem;cursor:pointer;transition:all .2s;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(99,102,241,.4);}
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease;}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.modal-title{font-size:1.1rem;font-weight:900;color:var(--gray-900);}
+.modal-sub{font-size:.82rem;color:var(--gray-400);margin-top:2px;}
+.modal-close{background:var(--gray-100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;color:var(--gray-500);}
+.modal-close:hover{background:var(--gray-200);}
+.m-form-group{margin-bottom:14px;}
+.m-label{font-size:.8rem;font-weight:700;color:var(--gray-700);margin-bottom:5px;display:block;}
+.m-input{width:100%;padding:11px 14px;border:1.5px solid var(--gray-200);border-radius:10px;font-size:.88rem;outline:none;transition:border .2s;}
+.m-input:focus{border-color:var(--green);}
+.m-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-modal{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-modal:hover{background:#059669;transform:translateY(-1px);}
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--gray-900);color:#fff;padding:12px 22px;border-radius:99px;font-size:.85rem;font-weight:600;opacity:0;transition:all .35s;z-index:999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:60px 24px;color:var(--gray-400);}
+.empty-state .icon{font-size:3rem;margin-bottom:12px;}
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .mess-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .hero{padding:48px 16px 60px;}
+  .hero-stats{gap:24px;}
+  .bar-name{width:110px;font-size:.75rem;}
+  .detail-name{font-size:1.3rem;}
+  .login-box{padding:28px 20px;}
+  .section{padding:24px 16px;}
+  .dash-body{padding:24px 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" onclick="showPage('home')">
+    <div class="logo-icon">M</div>
+    <div class="logo-text">Mess<span>Mate</span></div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn nav-btn-ghost" onclick="showPage('home')">Home</button>
+    <button class="nav-btn nav-btn-ghost" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-btn nav-btn-primary" onclick="showPage('login-role')">Login</button>
+  </div>
+</nav>
+
+<!-- ══════════ HOME ══════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-pill">🎓 Built for Students</div>
+    <h1>Find Best Mess<br><span>Near You</span></h1>
+    <p>Real reviews from real students. Discover messes, rate dishes, and eat better every day.</p>
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Search mess name, area..." oninput="renderMesses()"/>
+      <button onclick="renderMesses()">Search →</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="n">120+</div><div class="l">Messes Listed</div></div>
+      <div class="hero-stat"><div class="n">4,800+</div><div class="l">Student Reviews</div></div>
+      <div class="hero-stat"><div class="n">38</div><div class="l">Colleges</div></div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="chip active" onclick="setFilter(this,'all')">🍽️ All</div>
+    <div class="chip" onclick="setFilter(this,'delivery')">🛵 Delivery</div>
+    <div class="chip" onclick="setFilter(this,'veg')">🥦 Veg Only</div>
+    <div class="chip" onclick="setFilter(this,'top')">⭐ 4+ Rating</div>
+    <div class="chip" onclick="setFilter(this,'budget')">💰 Budget</div>
+    <div class="chip" onclick="setFilter(this,'south')">🍚 South Indian</div>
+    <div class="chip" onclick="setFilter(this,'punjabi')">🫕 Punjabi</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title" id="mess-count">All Messes</div>
+        <div class="section-sub">Near KIET, Ghaziabad</div>
+      </div>
+    </div>
+    <div class="mess-grid" id="mess-grid"></div>
+    <div class="empty-state" id="empty-state" style="display:none">
+      <div class="icon">🔍</div>
+      <div>No messes found. Try a different filter.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DETAIL ══════════ -->
+<div id="page-detail" class="page">
+  <div style="background:#fff;border-bottom:1px solid var(--gray-200);">
+    <div class="back-link" onclick="showPage('home')">← Back to results</div>
+    <div id="detail-hero" class="detail-hero g1"></div>
+    <div class="detail-info">
+      <div class="detail-name" id="detail-name"></div>
+      <div class="detail-meta" id="detail-meta"></div>
+      <div class="badges" id="detail-badges"></div>
+      <div class="detail-actions" id="detail-actions"></div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-menu')">🍽️ Menu</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-reviews')">⭐ Reviews</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-info')">ℹ️ Info</button>
+    </div>
+  </div>
+  <div style="max-width:800px;margin:0 auto;">
+    <div id="tab-menu" class="tab-content active"></div>
+    <div id="tab-reviews" class="tab-content"></div>
+    <div id="tab-info" class="tab-content"></div>
+  </div>
+
+  <!-- DELIVERY MODAL -->
+  <div class="modal-overlay" id="delivery-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <div><div class="modal-title">🛵 Request Delivery</div><div class="modal-sub" id="modal-mess-name"></div></div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="m-form-group"><label class="m-label">Delivery Address</label><input class="m-input" type="text" placeholder="Room, PG name, hostel, area..."/></div>
+      <div class="m-row">
+        <div class="m-form-group"><label class="m-label">Meal</label><select class="m-input"><option>Lunch (12–2 PM)</option><option>Dinner (7–9 PM)</option><option>Breakfast (8–10 AM)</option></select></div>
+        <div class="m-form-group"><label class="m-label">Date</label><input class="m-input" type="date"/></div>
+      </div>
+      <div class="m-form-group"><label class="m-label">Special Instructions</label><input class="m-input" type="text" placeholder="Less spicy, no onion, extra roti..."/></div>
+      <div class="m-form-group"><label class="m-label">Contact Number</label><input class="m-input" type="tel" placeholder="10-digit number"/></div>
+      <button class="btn-modal" onclick="placeOrder()">Confirm Delivery Request ✓</button>
+      <p style="text-align:center;font-size:.75rem;color:var(--gray-400);margin-top:10px;">Mess will confirm via call/WhatsApp. No advance payment.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ REVIEW ══════════ -->
+<div id="page-review" class="page">
+  <div class="review-wrap">
+    <div class="back-link" onclick="showPage('detail')" style="padding:0;margin-bottom:20px;">← Back to mess</div>
+    <div class="review-title">✍️ Write a Review</div>
+    <div class="review-sub" id="review-sub">Rate individual dishes</div>
+    <div id="review-items"></div>
+    <div class="comment-box">
+      <label style="display:block;font-size:.8rem;font-weight:700;color:var(--gray-500);margin-bottom:8px;">OVERALL COMMENTS</label>
+      <textarea rows="3" placeholder="Share your experience with this mess..."></textarea>
+    </div>
+    <button class="btn-submit" onclick="submitReview()">Submit Review 🚀</button>
+  </div>
+</div>
+
+<!-- ══════════ LOGIN ROLE ══════════ -->
+<div id="page-login-role" class="page">
+  <div class="login-role-wrap">
+    <div class="role-box">
+      <div style="text-align:center;margin-bottom:28px;">
+        <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.6rem;font-weight:900;margin:0 auto 16px;">M</div>
+        <div class="role-title">Welcome to MessMate</div>
+        <div class="role-sub">Choose how you want to continue</div>
+      </div>
+      <div class="role-card" onclick="showPage('login-student')">
+        <div class="role-icon purple">🎓</div>
+        <div><div class="role-name">Login as Student</div><div class="role-desc">Browse messes, rate dishes, read reviews</div></div>
+        <div class="role-arrow">›</div>
+      </div>
+      <div class="role-card green" onclick="showPage('login-owner')">
+        <div class="role-icon green">🍽️</div>
+        <div><div class="role-name">Login as Mess Owner</div><div class="role-desc">Manage mess, view analytics, grow business</div></div>
+        <div class="role-arrow">›</div>
+      </div>
+      <p style="text-align:center;font-size:.78rem;color:var(--gray-400);margin-top:20px;">By continuing, you agree to our Terms & Privacy Policy</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STUDENT LOGIN ══════════ -->
+<div id="page-login-student" class="page">
+  <div class="login-wrap" style="background:#f0f4ff;">
+    <div class="login-box">
+      <div class="back-link" onclick="showPage('login-role')" style="padding:0;margin-bottom:20px;">← Back</div>
+      <div class="login-header">
+        <div class="login-icon purple">🎓</div>
+        <div class="login-title">Student Login</div>
+        <div class="login-sub">Use your college email to sign in</div>
+      </div>
+      <div class="form-group"><label class="form-label">College Email</label><input class="form-input" type="email" placeholder="yourname@kiet.edu"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="••••••••"/></div>
+      <div class="form-row">
+        <label class="form-check"><input type="checkbox"/> Remember me</label>
+        <a href="#" class="form-link purple">Forgot password?</a>
+      </div>
+      <button class="btn-login purple" onclick="doLogin('student')">Login as Student</button>
+      <div class="or-divider">or continue with</div>
+      <button class="btn-google">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.4 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.5 35.5 26.9 36 24 36c-5.2 0-9.6-2.9-11.3-7l-6.5 5C9.7 39.6 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.4-2.5 4.4-4.7 5.8l6.2 5.2C40.3 35.7 44 30.3 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+        Continue with Google
+      </button>
+      <div class="login-footer">New here? <a href="#" class="form-link purple" style="font-weight:700;">Create account</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ OWNER LOGIN ══════════ -->
+<div id="page-login-owner" class="page">
+  <div class="login-wrap" style="background:#f0fdf4;">
+    <div class="login-box" style="border-top:4px solid var(--green);">
+      <div class="back-link" onclick="showPage('login-role')" style="padding:0;margin-bottom:20px;color:var(--green);">← Back</div>
+      <div class="login-header">
+        <div class="login-icon green">🍽️</div>
+        <div class="login-title">Owner Login</div>
+        <div class="login-sub">Manage your mess business</div>
+      </div>
+      <div class="form-group"><label class="form-label">Business Email</label><input class="form-input green" type="email" placeholder="owner@yourmess.com"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input green" type="password" placeholder="••••••••"/></div>
+      <div class="form-row">
+        <label class="form-check"><input type="checkbox"/> Remember me</label>
+        <a href="#" class="form-link green">Forgot password?</a>
+      </div>
+      <button class="btn-login green" onclick="doLogin('owner')">Login as Mess Owner</button>
+      <div class="login-footer" style="margin-top:16px;">New business? <a href="#" class="form-link green" style="font-weight:700;">Register your mess</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="page-dashboard" class="page">
+  <div class="dash-header">
+    <h1>📊 Owner Dashboard</h1>
+    <p>Sharma Ji Ka Khana — Real-time Analytics</p>
+    <div class="dash-pro">🟢 Pro Member</div>
+  </div>
+  <div class="dash-body">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:#eef2ff;">📝</div><div class="stat-label">TOTAL REVIEWS</div><div class="stat-val">248</div><div class="stat-change up">↑ 12 this week</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#d1fae5;">⭐</div><div class="stat-label">AVG RATING</div><div class="stat-val">4.2</div><div class="stat-change up">↑ 0.3 vs last month</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#fde68a;">👥</div><div class="stat-label">ACTIVE STUDENTS</div><div class="stat-val">84</div><div class="stat-change up">↑ 7 new this week</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#fecaca;">🛵</div><div class="stat-label">DELIVERIES</div><div class="stat-val">31</div><div class="stat-change up">↑ 5 this week</div></div>
+    </div>
+    <div class="highlight-grid">
+      <div class="hl-card best">
+        <div class="hl-tag">🏆 MOST LIKED ITEM</div>
+        <div class="hl-name">Paneer Butter Masala</div>
+        <div class="hl-rating"><span class="hl-stars">⭐⭐⭐⭐⭐</span><span class="hl-num">4.8 / 5</span></div>
+        <div class="hl-sub">Rated by 67 students · Make more of this!</div>
+      </div>
+      <div class="hl-card worst">
+        <div class="hl-tag">⚠️ NEEDS IMPROVEMENT</div>
+        <div class="hl-name">Mix Veg</div>
+        <div class="hl-rating"><span class="hl-stars">⭐⭐⭐</span><span class="hl-num">3.2 / 5</span></div>
+        <div class="hl-sub">Students say: "Too oily, less salt"</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🍽️ Dish Ratings — Adjust Quantity Based on Demand</div>
+      <div id="dash-bars"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📝 Recent Student Reviews</div>
+      <div id="dash-reviews"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS=['g1','g2','g3','g4','g5','g6'];
+const AVATARS=['#6366f1','#10b981','#f97316','#ef4444','#8b5cf6','#ec4899'];
+
+const messes=[
+  {id:0,name:"Sharma Ji Ka Khana",area:"Sector 9, near KIET Gate 1",rating:4.3,price:2200,delivery:true,veg:true,emoji:"🍛",tags:["Lunch","Dinner","Home Style"],timing:"7AM–10PM",phone:"9876543210",address:"Plot 12, Sector 9, Ghaziabad",cat:['home'],
+    menu:{"Breakfast":[{n:"Poha",p:30,r:4.5,v:true},{n:"Aloo Paratha",p:40,r:4.7,v:true},{n:"Bread Omelette",p:35,r:4.1,v:false}],"Lunch":[{n:"Dal Tadka",p:60,r:4.6,v:true},{n:"Paneer Butter Masala",p:90,r:4.8,v:true},{n:"Chicken Curry",p:110,r:4.4,v:false},{n:"Steamed Rice",p:20,r:4.0,v:true}],"Dinner":[{n:"Roti (4 pcs)",p:30,r:4.3,v:true},{n:"Mix Veg",p:60,r:3.2,v:true},{n:"Egg Bhurji",p:50,r:4.2,v:false}]},
+    reviews:[{name:"Rahul K",date:"2 days ago",text:"Dal tadka is outstanding! Feels just like home. Delivery was on time.",item:"Dal Tadka",rating:5},{name:"Priya S",date:"5 days ago",text:"Paneer dish is the best in this area, no doubt. A bit pricey but worth every rupee.",item:"Paneer Butter Masala",rating:5},{name:"Aman T",date:"1 week ago",text:"Mix veg is average, but overall mess is clean and hygienic. Good value for the price.",item:"Mix Veg",rating:3}]},
+  {id:1,name:"Mata Rani Bhojnalaya",area:"Sector 14, 500m from campus",rating:3.8,price:1800,delivery:false,veg:true,emoji:"🥘",tags:["Veg Only","Thali","Budget"],timing:"6AM–9PM",phone:"9812345678",address:"B-4, Sector 14, Ghaziabad",cat:['home'],
+    menu:{"Thali":[{n:"Full Veg Thali",p:70,r:4.0,v:true},{n:"Mini Thali",p:50,r:3.8,v:true}],"à la carte":[{n:"Rajma Chawal",p:60,r:4.2,v:true},{n:"Puri Bhaji",p:40,r:3.7,v:true},{n:"Chole",p:55,r:3.9,v:true}]},
+    reviews:[{name:"Neha R",date:"3 days ago",text:"Rajma chawal on Tuesdays is a must! Consistent quality for the price.",item:"Rajma Chawal",rating:4},{name:"Kartik M",date:"1 week ago",text:"Puri bhaji was a bit oily today. Thali is good though.",item:"Puri Bhaji",rating:3}]},
+  {id:2,name:"Bhaiya's Kitchen",area:"Lal Kuan, 1.2km from KIET",rating:4.6,price:2800,delivery:true,veg:false,emoji:"🍖",tags:["Non-Veg","Delivery","Popular"],timing:"11AM–11PM",phone:"9898765432",address:"12/3, Lal Kuan Road, Ghaziabad",cat:['home'],
+    menu:{"Specials":[{n:"Butter Chicken",p:130,r:4.8,v:false},{n:"Mutton Keema",p:150,r:4.7,v:false},{n:"Fish Fry",p:140,r:4.5,v:false}],"Regular":[{n:"Dal Makhani",p:70,r:4.3,v:true},{n:"Jeera Rice",p:40,r:4.1,v:true},{n:"Tandoori Roti",p:15,r:4.4,v:true}]},
+    reviews:[{name:"Varun D",date:"1 day ago",text:"Best butter chicken in the area, hands down. Delivery was quick too!",item:"Butter Chicken",rating:5},{name:"Siddharth P",date:"4 days ago",text:"Dal makhani rivals the non-veg items honestly. Super creamy.",item:"Dal Makhani",rating:5}]},
+  {id:3,name:"Ghar Ka Swad",area:"Sector 5, near girls' hostel",rating:4.1,price:2000,delivery:true,veg:true,emoji:"🥗",tags:["Healthy","Veg","Tiffin"],timing:"7AM–9PM",phone:"9654321098",address:"Flat 3B, Sector 5, Ghaziabad",cat:['home'],
+    menu:{"Healthy":[{n:"Quinoa Bowl",p:90,r:4.3,v:true},{n:"Sprouts Salad",p:50,r:4.0,v:true},{n:"Multigrain Roti",p:30,r:4.1,v:true}],"Regular":[{n:"Sabzi of the Day",p:60,r:3.9,v:true},{n:"Curd Rice",p:45,r:4.4,v:true}]},
+    reviews:[{name:"Sana K",date:"2 days ago",text:"Finally a mess that cares about healthy food. Quinoa bowl is surprisingly good!",item:"Quinoa Bowl",rating:4},{name:"Divya M",date:"5 days ago",text:"Tiffin service is reliable, always on time. Curd rice is my go-to.",item:"Curd Rice",rating:5}]},
+  {id:4,name:"Punjab Da Dhaba",area:"GT Road, 800m from campus",rating:4.4,price:2600,delivery:false,veg:false,emoji:"🫕",tags:["Punjabi","Hearty","Non-Veg"],timing:"8AM–10PM",phone:"9741236985",address:"GT Road, Near Petrol Pump, Ghaziabad",cat:['punjabi'],
+    menu:{"Punjabi Specials":[{n:"Sarson Da Saag",p:80,r:4.9,v:true},{n:"Amritsari Chole",p:75,r:4.6,v:true},{n:"Murgh Makhani",p:140,r:4.5,v:false}],"Breads":[{n:"Makki di Roti",p:20,r:4.7,v:true},{n:"Tandoori Paratha",p:25,r:4.4,v:true}]},
+    reviews:[{name:"Harpreet S",date:"1 day ago",text:"Sarson da saag with makki di roti is unbeatable. Straight up Punjab vibes.",item:"Sarson Da Saag",rating:5},{name:"Rohit B",date:"3 days ago",text:"Chole are perfectly spiced. Large portions too.",item:"Amritsari Chole",rating:5}]},
+  {id:5,name:"South Spice Corner",area:"Sector 18, 1.5km from KIET",rating:3.9,price:1900,delivery:true,veg:true,emoji:"🍚",tags:["South Indian","Veg","Dosa"],timing:"7AM–3PM",phone:"9532147896",address:"A-22, Sector 18, Ghaziabad",cat:['south'],
+    menu:{"South Indian":[{n:"Masala Dosa",p:60,r:4.4,v:true},{n:"Idli Sambar",p:45,r:4.1,v:true},{n:"Uttapam",p:55,r:3.8,v:true},{n:"Vada Sambar",p:50,r:4.0,v:true}]},
+    reviews:[{name:"Aditya R",date:"2 days ago",text:"Masala dosa is crispy and the chutney is authentic. Missing home!",item:"Masala Dosa",rating:5},{name:"Meera P",date:"1 week ago",text:"Idli was soft but sambar felt thin today.",item:"Idli Sambar",rating:3}]}
+];
+
+const dashDishes=[
+  {n:"Paneer Butter Masala",r:4.8,c:"#10b981"},{n:"Aloo Paratha",r:4.7,c:"#10b981"},
+  {n:"Dal Tadka",r:4.6,c:"#10b981"},{n:"Roti (4 pcs)",r:4.3,c:"#6366f1"},
+  {n:"Egg Bhurji",r:4.2,c:"#6366f1"},{n:"Mix Veg",r:3.2,c:"#ef4444"}
+];
+
+let activeFilter='all', currentMess=null;
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function setFilter(el,f){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter=f;
+  renderMesses();
+}
+
+function starsHtml(r){
+  let s='';
+  for(let i=1;i<=5;i++) s+=`<span style="color:${i<=Math.round(r)?'#f59e0b':'#e5e7eb'}">★</span>`;
+  return s;
+}
+
+function renderMesses(){
+  const q=(document.getElementById('search-input').value||'').toLowerCase();
+  let list=messes.filter(m=>{
+    if(q&&!m.name.toLowerCase().includes(q)&&!m.area.toLowerCase().includes(q)) return false;
+    if(activeFilter==='delivery'&&!m.delivery) return false;
+    if(activeFilter==='veg'&&!m.veg) return false;
+    if(activeFilter==='top'&&m.rating<4) return false;
+    if(activeFilter==='budget'&&m.price>2000) return false;
+    if(activeFilter==='south'&&!m.cat.includes('south')) return false;
+    if(activeFilter==='punjabi'&&!m.cat.includes('punjabi')) return false;
+    return true;
+  });
+  const grid=document.getElementById('mess-grid');
+  const empty=document.getElementById('empty-state');
+  const label=document.getElementById('mess-count');
+  label.textContent=`${list.length} Mess${list.length!==1?'es':''} Found`;
+  if(!list.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=list.map((m,i)=>`
+    <div class="mess-card" onclick="openMess(${m.id})">
+      <div class="mess-thumb ${COLORS[m.id%6]}">
+        ${m.emoji}
+        ${m.delivery?'<div class="thumb-badge delivery">🛵 Delivery</div>':''}
+        ${m.veg?'<div class="thumb-badge veg">🥦 Veg</div>':''}
+      </div>
+      <div class="mess-body">
+        <div class="mess-top">
+          <div class="mess-name">${m.name}</div>
+          <div class="rating-badge">⭐ ${m.rating}</div>
+        </div>
+        <div class="mess-area">📍 ${m.area}</div>
+        <div class="mess-tags">${m.tags.map(t=>`<div class="mess-tag">${t}</div>`).join('')}</div>
+        <div class="mess-footer">
+          <div class="mess-price">₹${m.price.toLocaleString()} <span>/month</span></div>
+          <button class="btn-view">View Details →</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openMess(id){
+  currentMess=messes[id];
+  const m=currentMess;
+  const dh=document.getElementById('detail-hero');
+  dh.className=`detail-hero ${COLORS[id%6]}`;
+  dh.textContent=m.emoji;
+  document.getElementById('detail-name').textContent=m.name;
+  document.getElementById('detail-meta').textContent=`📍 ${m.area}  ·  ⏰ ${m.timing}  ·  ₹${m.price.toLocaleString()}/month`;
+  document.getElementById('detail-badges').innerHTML=`
+    <span class="badge badge-green">⭐ ${m.rating} Rating</span>
+    ${m.delivery?'<span class="badge badge-purple">🛵 Delivery Available</span>':'<span class="badge badge-orange">🚶 Dine-in Only</span>'}
+    ${m.veg?'<span class="badge badge-green">🥦 Pure Veg</span>':'<span class="badge badge-orange">🍖 Non-Veg Available</span>'}`;
+  document.getElementById('detail-actions').innerHTML=`
+    ${m.delivery?`<button class="btn-delivery" onclick="document.getElementById('delivery-modal').classList.add('open')">🛵 Order Delivery</button>`:''}
+    <button class="btn-review-write" onclick="openReview()">✍️ Write Review</button>
+    <button class="btn-save" onclick="showToast('Saved to favourites ❤️')">♡ Save</button>`;
+  document.getElementById('modal-mess-name').textContent=m.name;
+  buildMenu(); buildReviews(); buildInfo();
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.querySelectorAll('.tab-content').forEach((c,i)=>c.classList.toggle('active',i===0));
+  showPage('detail');
+}
+
+function buildMenu(){
+  document.getElementById('tab-menu').innerHTML=Object.entries(currentMess.menu).map(([cat,items])=>`
+    <div class="menu-cat">
+      <div class="cat-label">${cat}</div>
+      ${items.map(it=>`
+        <div class="menu-item">
+          <div class="mi-left">
+            <div class="veg-sq ${it.v?'veg':'nonveg'}"></div>
+            <div>
+              <div class="mi-name">${it.n}</div>
+              <div class="mi-stars">${starsHtml(it.r)} <span style="color:var(--gray-400);font-size:.75rem;">${it.r}</span></div>
+            </div>
+          </div>
+          <div class="mi-price">₹${it.p}</div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function buildReviews(){
+  document.getElementById('tab-reviews').innerHTML=currentMess.reviews.map((r,i)=>`
+    <div class="review-card">
+      <div class="reviewer">
+        <div class="avatar" style="background:${AVATARS[i%AVATARS.length]}">${r.name[0]}</div>
+        <div>
+          <div class="rv-name">${r.name}</div>
+          <div class="rv-date">${r.date} · <span class="rv-stars">${starsHtml(r.rating)}</span></div>
+        </div>
+      </div>
+      <div class="rv-text">${r.text}</div>
+      <div class="rv-item">📌 ${r.item}</div>
+    </div>`).join('');
+}
+
+function buildInfo(){
+  const m=currentMess;
+  document.getElementById('tab-info').innerHTML=`
+    <div class="info-card">
+      <div class="info-row"><span class="info-label">📌 Address</span><span class="info-val">${m.address}</span></div>
+      <div class="info-row"><span class="info-label">📞 Phone</span><span class="info-val">${m.phone}</span></div>
+      <div class="info-row"><span class="info-label">⏰ Timing</span><span class="info-val">${m.timing}</span></div>
+      <div class="info-row"><span class="info-label">🛵 Delivery</span><span class="info-val" style="color:${m.delivery?'var(--green)':'var(--red)'}">${m.delivery?'Available':'Not available'}</span></div>
+      <div class="info-row"><span class="info-label">💰 Monthly</span><span class="info-val">₹${m.price.toLocaleString()}/month</span></div>
+      <div class="info-row"><span class="info-label">🥦 Type</span><span class="info-val">${m.veg?'Pure Veg':'Veg & Non-Veg'}</span></div>
+    </div>`;
+}
+
+function switchTab(el,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function openReview(){
+  document.getElementById('review-sub').textContent=`Rate dishes at ${currentMess.name}`;
+  const all=[].concat(...Object.values(currentMess.menu));
+  document.getElementById('review-items').innerHTML=all.map((it,i)=>`
+    <div class="ri-card">
+      <div class="ri-name">${it.n}</div>
+      <div class="star-row" id="sr-${i}">
+        ${[1,2,3,4,5].map(s=>`<button class="star-btn" onclick="rate(${i},${s})">★</button>`).join('')}
+      </div>
+    </div>`).join('');
+  showPage('review');
+}
+
+function rate(idx,val){
+  document.getElementById('sr-'+idx).querySelectorAll('.star-btn').forEach((b,i)=>{
+    b.classList.toggle('lit',i<val);
+  });
+}
+
+function submitReview(){showToast('Review submitted! Thank you 🎉');showPage('detail');}
+function closeModal(){document.getElementById('delivery-modal').classList.remove('open');}
+function placeOrder(){closeModal();showToast('Delivery request sent! Mess will confirm shortly 🛵');}
+
+function doLogin(role){
+  showToast(role==='student'?'Welcome, Student! 🎓':'Welcome back, Owner! 🍽️');
+  setTimeout(()=>showPage(role==='owner'?'dashboard':'home'),500);
+}
+
+function renderDashboard(){
+  document.getElementById('dash-bars').innerHTML=dashDishes.map(d=>`
+    <div class="bar-row">
+      <div class="bar-name">${d.n}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(d.r/5)*100}%;background:${d.c}"></div></div>
+      <div class="bar-val">${d.r}</div>
+    </div>`).join('');
+  document.getElementById('dash-reviews').innerHTML=messes[0].reviews.map((r,i)=>`
+    <div class="review-card" style="margin-bottom:10px;">
+      <div class="reviewer">
+        <div class="avatar" style="background:${AVATARS[i%AVATARS.length]}">${r.name[0]}</div>
+        <div><div class="rv-name">${r.name}</div><div class="rv-date">${r.date} · <span class="rv-stars">${starsHtml(r.rating)}</span></div></div>
+      </div>
+      <div class="rv-text">${r.text}</div>
+      <div class="rv-item">📌 ${r.item}</div>
+    </div>`).join('');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+renderMesses();
+renderDashboard();
+</script>
+</body>
+</html>
